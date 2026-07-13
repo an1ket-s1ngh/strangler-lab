@@ -1,0 +1,24 @@
+# Binaries
+*-bin
+*-bin.exe
+*.exe
+*.test
+*.out
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Go
+vendor/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local env
+.env
+.env.*

@@ -1,0 +1,59 @@
+# Optional local stack. Prefer `make smoke` / `node scripts/dev-up.js` if you
+# already have Go + Node installed — no Docker required for the demo.
+services:
+  legacy:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./legacy:/app
+    command: ["node", "server.js"]
+    environment:
+      PORT: "8080"
+      HOST: "0.0.0.0"
+    ports:
+      - "8080:8080"
+
+  orders-go:
+    image: golang:1.22-alpine
+    working_dir: /src
+    volumes:
+      - ./services/orders-go:/src
+    command: ["go", "run", "."]
+    environment:
+      PORT: "8081"
+      INVENTORY_URL: "http://legacy:8080"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - legacy
+
+  inventory-go:
+    image: golang:1.22-alpine
+    working_dir: /src
+    volumes:
+      - ./services/inventory-go:/src
+    command: ["go", "run", "."]
+    environment:
+      PORT: "8082"
+    ports:
+      - "8082:8082"
+
+  gateway:
+    image: golang:1.22-alpine
+    working_dir: /src
+    volumes:
+      - ./gateway:/src
+    command: ["go", "run", "."]
+    environment:
+      PORT: "8000"
+      LEGACY_URL: "http://legacy:8080"
+      ORDERS_URL: "http://orders-go:8081"
+      INVENTORY_URL: "http://inventory-go:8082"
+      ROUTE_ORDERS_NEW: "true"
+      ROUTE_INVENTORY_NEW: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - legacy
+      - orders-go
+      - inventory-go

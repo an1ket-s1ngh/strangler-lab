@@ -1,0 +1,14 @@
+{
+  "name": "strangler-lab-legacy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Toy legacy monolith: orders + inventory in one process",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

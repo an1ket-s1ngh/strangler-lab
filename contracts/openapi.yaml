@@ -1,0 +1,215 @@
+openapi: 3.0.3
+info:
+  title: Strangler Lab Retail Orders API
+  version: 1.0.0
+  description: |
+    Shared contract for the educational Strangler Fig lab.
+    Both the legacy monolith and Go microservices must satisfy these shapes
+    so the gateway can cut traffic over path-by-path without breaking clients.
+  contact:
+    name: Aniket Singh
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8000
+    description: Gateway (preferred entrypoint)
+  - url: http://localhost:8080
+    description: Legacy monolith direct
+paths:
+  /health:
+    get:
+      summary: Liveness
+      operationId: health
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+  /orders:
+    post:
+      summary: Create an order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+            example:
+              customerId: "cust-42"
+              items:
+                - sku: SKU-COFFEE-01
+                  quantity: 2
+      responses:
+        "201":
+          description: Order confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /orders/{id}:
+    get:
+      summary: Get order by id
+      operationId: getOrder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          $ref: "#/components/responses/Error"
+  /inventory/{sku}:
+    get:
+      summary: Get inventory for a SKU
+      operationId: getInventory
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stock level
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stock"
+        "404":
+          $ref: "#/components/responses/Error"
+  /inventory/{sku}/reserve:
+    post:
+      summary: Reserve stock for a SKU
+      operationId: reserveInventory
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReserveRequest"
+      responses:
+        "200":
+          description: Reservation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReserveResponse"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+components:
+  schemas:
+    OrderItem:
+      type: object
+      required: [sku, quantity]
+      properties:
+        sku:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+    CreateOrderRequest:
+      type: object
+      required: [customerId, items]
+      properties:
+        customerId:
+          type: string
+          minLength: 1
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/OrderItem"
+    Order:
+      type: object
+      required: [id, customerId, items, status, createdAt]
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        status:
+          type: string
+          enum: [confirmed]
+        createdAt:
+          type: string
+          format: date-time
+    Stock:
+      type: object
+      required: [sku, name, quantity]
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+        quantity:
+          type: integer
+          minimum: 0
+    ReserveRequest:
+      type: object
+      required: [quantity]
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+    ReserveResponse:
+      type: object
+      required: [sku, reserved, remaining]
+      properties:
+        sku:
+          type: string
+        reserved:
+          type: integer
+        remaining:
+          type: integer
+          minimum: 0
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
