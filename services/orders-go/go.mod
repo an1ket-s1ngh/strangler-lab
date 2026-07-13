@@ -1,4 +1,4 @@
-module github.com/an1ket-s1ngh/strangler-lab/services/orders-go
+module github.com/acephos/strangler-lab/services/orders-go
 
 go 1.22
 

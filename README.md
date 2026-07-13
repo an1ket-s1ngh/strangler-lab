@@ -3,7 +3,7 @@
 **Strangler Fig lab** — migrate a legacy monolith to Go microservices with gateway cutover and contract tests.
 
 > Lab project exploring patterns used when modernizing long-lived enterprise retail systems (monolith → services).  
-> **Not a real POS.** Clean-room educational code only. Author: [Aniket Singh](https://github.com/an1ket-s1ngh) · MIT
+> **Not a real POS.** Clean-room educational code only. Author: [Aniket Singh](https://github.com/acephos) · MIT
 
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](https://go.dev/)
 [![Node](https://img.shields.io/badge/Node-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -105,7 +105,7 @@ What a recruiter or hiring manager should notice:
 **Prerequisites:** Go 1.22+, Node 18+, Make (optional).
 
 ```bash
-git clone https://github.com/an1ket-s1ngh/strangler-lab.git
+git clone https://github.com/acephos/strangler-lab.git
 cd strangler-lab
 
 # One-shot: build, start stack, create-order flow, tear down (exit 0 on pass)
